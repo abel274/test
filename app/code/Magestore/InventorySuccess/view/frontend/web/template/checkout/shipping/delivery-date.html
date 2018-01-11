@@ -1,0 +1,76 @@
+<div style="margin: 10px 0px;">
+    <div style="margin-bottom: 10px;">
+        <span style="font-size: 16px;"><!-- ko text: 'Delivery date:' --><!-- /ko --></span>
+    </div>
+    <input style="height: 32px;width: 60%;padding-left: 10px;" readonly="readonly"
+           data-bind="datepicker: deliveryDate" id="delivery-date-checkout"/>
+    <button id="date_of_birth-btn"
+            style="float:right;position:absolute;z-index:1;line-height: 40px;margin-left: -30px;"
+            type="button" class="ui-datepicker-trigger v-middle"
+            data-bind="click: changeDeliveryDate"></button>
+</div>
+
+<style>
+
+    ._has-datepicker ~ .ui-datepicker-trigger {
+        background-image: none;
+        background: none;
+        -moz-box-sizing: content-box;
+        border: 0;
+        box-shadow: none;
+        line-height: inherit;
+        margin: 0;
+        padding: 0;
+        text-shadow: none;
+        font-weight: 400;
+        display: block;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: -4px;
+        vertical-align: middle;
+    }
+    ._has-datepicker ~ .ui-datepicker-trigger:focus,
+    ._has-datepicker ~ .ui-datepicker-trigger:active {
+        background: none;
+        border: none;
+    }
+    ._has-datepicker ~ .ui-datepicker-trigger:hover {
+        background: none;
+        border: none;
+    }
+    ._has-datepicker ~ .ui-datepicker-trigger.disabled,
+    ._has-datepicker ~ .ui-datepicker-trigger[disabled],
+    fieldset[disabled] ._has-datepicker ~ .ui-datepicker-trigger {
+        cursor: not-allowed;
+        pointer-events: none;
+        opacity: 0.5;
+    }
+    ._has-datepicker ~ .ui-datepicker-trigger > span {
+        border: 0;
+        clip: rect(0, 0, 0, 0);
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        padding: 0;
+        position: absolute;
+        width: 1px;
+    }
+    ._has-datepicker ~ .ui-datepicker-trigger:before {
+        -webkit-font-smoothing: antialiased;
+        font-size: 23px;
+        line-height: 23px;
+        color: #7d7d7d;
+        content: '\e612';
+        font-family: 'luma-icons';
+        vertical-align: middle;
+        display: inline-block;
+        font-weight: normal;
+        overflow: hidden;
+        speak: none;
+        text-align: center;
+    }
+    ._has-datepicker ~ .ui-datepicker-trigger:focus {
+        box-shadow: none;
+        outline: 0;
+    }
+</style>
