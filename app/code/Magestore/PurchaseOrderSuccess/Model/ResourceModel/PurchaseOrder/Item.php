@@ -56,6 +56,15 @@ class Item extends \Magestore\PurchaseOrderSuccess\Model\ResourceModel\AbstractR
     public function addProductsToPurchaseOrder($purchaseProductsData = []){
         if(!count($purchaseProductsData))
             return true;
+
+        // Add data qty_ordered suggest
+        $om = \Magento\Framework\App\ObjectManager::getInstance();
+        $helper = $om->get('Magestore\PurchaseOrderSuccess\Helper\Data');
+        foreach ($purchaseProductsData as $key => $data) {
+            $data['qty_orderred'] = $helper->getSuggestQtyProduct($data['product_id']);
+            $purchaseProductsData[$key] = $data;
+        }
+
         $this->queryProcessor->start();
         $this->queryProcessor->addQuery([
             'type' => QueryProcessorInterface::QUERY_TYPE_INSERT,

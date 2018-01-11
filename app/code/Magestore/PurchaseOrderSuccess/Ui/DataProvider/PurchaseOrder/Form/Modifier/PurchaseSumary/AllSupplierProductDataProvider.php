@@ -56,10 +56,17 @@ class AllSupplierProductDataProvider extends \Magento\Ui\DataProvider\AbstractDa
      */
     public function getData()
     {
+        $om = \Magento\Framework\App\ObjectManager::getInstance();
         if (!$this->getCollection()->isLoaded()) {
             $this->getCollection()->load();
         }
         $items = $this->getCollection()->toArray();
+        // add data suggest_qty
+        foreach ($items['items'] as $key => $item) {
+            $helper = $om->get('Magestore\PurchaseOrderSuccess\Helper\Data');
+            $item['suggest_qty'] = $helper->getSuggestQtyProduct($item['product_id']);
+            $items['items'][$key] = $item;
+        }
         return $items;
     }
 

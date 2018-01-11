@@ -39,6 +39,16 @@ class ProductService extends AbstractService
     }
 
     /**
+     * @return \Magestore\SupplierSuccess\Model\ResourceModel\Supplier\Product\Collection
+     */
+    public function getAllSupplierProducts()
+    {
+        /** @var \Magestore\SupplierSuccess\Model\ResourceModel\Supplier\Product\Collection $productCollection */
+        $productCollection = $this->_supplierProductCollectionFactory->create();
+        return $productCollection;
+    }
+
+    /**
      * @param $supplierId
      * @param $file
      * @throws \Exception

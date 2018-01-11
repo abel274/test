@@ -165,4 +165,16 @@
             </argument>
         </arguments>
     </virtualType>
+
+    <!-- add modifier for safety_quantity -->
+    <virtualType name="Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\Pool">
+        <arguments>
+            <argument name="modifiers" xsi:type="array">
+                <item name="safety_quantity_product_po" xsi:type="array">
+                    <item name="class" xsi:type="string">Magestore\PurchaseOrderSuccess\Ui\DataProvider\Product\Form\Modifier\SafetyQuantity</item>
+                    <item name="sortOrder" xsi:type="number">20</item>
+                </item>
+            </argument>
+        </arguments>
+    </virtualType>
 </config>

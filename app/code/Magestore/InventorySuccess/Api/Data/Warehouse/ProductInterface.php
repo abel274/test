@@ -24,6 +24,8 @@ interface ProductInterface extends \Magento\Framework\Api\CustomAttributesDataIn
 
     CONST QTY_TO_SHIP = "qty_to_ship";
 
+    CONST RESERVED_QTY = "reserved_qty";
+
     CONST SHELF_LOCATION = "shelf_location";
 
     const CREATED_AT = 'created_at';

@@ -48,4 +48,7 @@
     <event name="controller_action_predispatch_inventorysuccess_transferstock_external_edit">
         <observer name="inventorysuccess_predispatch_adminhtml_inventorysuccess_transferstock_external_edit" instance="Magestore\InventorySuccess\Observer\TransferStock\Predispatch" />
     </event>
+    <event name="sales_order_save_before">
+        <observer name="inventorysuccess_adminhtml_save_before" instance="Magestore\InventorySuccess\Observer\Adminhtml\Sales\OrderSaveBefore" />
+    </event>
 </config>

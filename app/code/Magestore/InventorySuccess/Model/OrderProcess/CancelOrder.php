@@ -75,20 +75,48 @@ class CancelOrder extends OrderProcess implements CancelOrderInterface
         $orderedWarehouseId = $this->getOrderWarehouse($item->getItemId());
         $processWarehouseId = $this->catalogInventoryConfiguration->getDefaultScopeId();
         $canceledQty = $this->_getCanceledQty($item);
-        $qtyChanges = array(
-            $globalStockId => array(
-                WarehouseProductInterface::AVAILABLE_QTY => 0,
-            ),
-            $orderedWarehouseId => array(
-                WarehouseProductInterface::AVAILABLE_QTY => 0,
-            ),
-            $processWarehouseId => array(
-                WarehouseProductInterface::AVAILABLE_QTY => 0,
-            ),            
-        );
-        $qtyChanges[$globalStockId][WarehouseProductInterface::AVAILABLE_QTY] +=  $canceledQty;
-        $qtyChanges[$orderedWarehouseId][WarehouseProductInterface::AVAILABLE_QTY] +=  $canceledQty;
-        $qtyChanges[$processWarehouseId][WarehouseProductInterface::AVAILABLE_QTY] -=  $canceledQty;
+        $order = $item->getOrder();
+        $isAfterRestockDate = $item->getData('is_after_restock_date');
+        // if after_restock_date not increase available qty
+        if(!$isAfterRestockDate) {
+            // if none after_restock_date => process normally
+            $qtyChanges = array(
+                $globalStockId => array(
+                    WarehouseProductInterface::AVAILABLE_QTY => 0,
+                ),
+                $orderedWarehouseId => array(
+                    WarehouseProductInterface::AVAILABLE_QTY => 0,
+                ),
+                $processWarehouseId => array(
+                    WarehouseProductInterface::AVAILABLE_QTY => 0,
+                ),
+            );
+            $qtyChanges[$globalStockId][WarehouseProductInterface::AVAILABLE_QTY] += $canceledQty;
+            $qtyChanges[$orderedWarehouseId][WarehouseProductInterface::AVAILABLE_QTY] += $canceledQty;
+            $qtyChanges[$processWarehouseId][WarehouseProductInterface::AVAILABLE_QTY] -= $canceledQty;
+        } else {
+            // if after_restock_date => not increase available qty, and decrease reserved qty
+            $qtyChanges = array(
+                $globalStockId => array(
+                    WarehouseProductInterface::RESERVED_QTY => 0,
+                ),
+                $orderedWarehouseId => array(
+                    WarehouseProductInterface::RESERVED_QTY => 0,
+                ),
+            );
+
+            // magento core will automatically increase available_qty of process warehouse
+            // => need decrease available_qty of process warehouse
+            if($processWarehouseId == $globalStockId) {
+                $qtyChanges[$globalStockId][WarehouseProductInterface::AVAILABLE_QTY] = 0;
+            } elseif ($processWarehouseId == $orderedWarehouseId) {
+                $qtyChanges[$orderedWarehouseId][WarehouseProductInterface::AVAILABLE_QTY] = 0;
+            }
+
+            $qtyChanges[$globalStockId][WarehouseProductInterface::RESERVED_QTY] -= $canceledQty;
+            $qtyChanges[$orderedWarehouseId][WarehouseProductInterface::RESERVED_QTY] -= $canceledQty;
+            $qtyChanges[$processWarehouseId][WarehouseProductInterface::AVAILABLE_QTY] -= $canceledQty;
+        }
 
         $queries = $this->warehouseStockRegistry
                         ->prepareChangeQtys($item->getProductId(), $qtyChanges);

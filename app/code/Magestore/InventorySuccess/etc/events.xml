@@ -40,7 +40,11 @@
     </event>      
     <event name="sales_creditmemo_item_save_after">
         <observer name="inventorysuccess_sales_creditmemo_item_save_after" instance="Magestore\InventorySuccess\Observer\Sales\CreditmemoItemSaveAfter"/>
-    </event>    
+    </event>
+    <!-- Order save before -->
+    <event name="sales_order_save_before">
+        <observer name="inventorysuccess_sales_order_save_before" instance="Magestore\InventorySuccess\Observer\Sales\OrderSaveBefore"/>
+    </event>
     <!-- End of Sales Events -->
 
     <!-- Integrate webpos -->

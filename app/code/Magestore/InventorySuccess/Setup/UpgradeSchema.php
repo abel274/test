@@ -30,6 +30,61 @@ class UpgradeSchema implements UpgradeSchemaInterface
         if (version_compare($context->getVersion(), '1.1.2', '<')) {
             $this->addUpdatedTimeFieldStockItem($setup);
         }
+        if (version_compare($context->getVersion(), '1.1.3', '<')) {
+            $this->addDeliveryDateToOrder($setup);
+        }
+        if (version_compare($context->getVersion(), '1.1.4', '<')) {
+            $this->addIsAfterRestockDateToOrderItem($setup);
+            $this->addReservedQtyToCatalogStockItem($setup);
+        }
+    }
+
+    // add is_after_restock_date to sales_order
+    protected function addIsAfterRestockDateToOrderItem(SchemaSetupInterface $setup) {
+        if (!$setup->getConnection()->tableColumnExists($setup->getTable('sales_order_item'), 'is_after_restock_date')) {
+            $setup->getConnection()->addColumn(
+                $setup->getTable('sales_order_item'),
+                'is_after_restock_date',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+                    'nullable' => false,
+                    'default' => '0',
+                    'comment' => 'Is After Restock Date'
+                ]
+            );
+        }
+    }
+
+    // add delivery_date to sales_order
+    protected function addDeliveryDateToOrder(SchemaSetupInterface $setup) {
+        if (!$setup->getConnection()->tableColumnExists($setup->getTable('sales_order'), 'delivery_date')) {
+            $setup->getConnection()->addColumn(
+                $setup->getTable('sales_order'),
+                'delivery_date',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DATE,
+                    'nullable' => true,
+                    'comment' => 'Delivery Date'
+                ]
+            );
+        }
+    }
+
+    // add reserved_qty to cataloginventory_stock_item
+    protected function addReservedQtyToCatalogStockItem(SchemaSetupInterface $setup) {
+        if (!$setup->getConnection()->tableColumnExists($setup->getTable('cataloginventory_stock_item'), 'reserved_qty')) {
+            $setup->getConnection()->addColumn(
+                $setup->getTable('cataloginventory_stock_item'),
+                'reserved_qty',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    11,
+                    'nullable' => false,
+                    'default' => 0,
+                    'comment' => 'Reserved Qty'
+                ]
+            );
+        }
     }
 
     /**

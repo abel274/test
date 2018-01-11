@@ -110,8 +110,9 @@ class AddProductDataProvider extends \Magento\Ui\DataProvider\AbstractDataProvid
         $supplierId = $this->requestInterface->getParam('supplier_id', null);
         $supplierProductIds = 0;
         if ($supplierId) {
+            // product cannot in 2 suppliers
             /** @var \Magestore\SupplierSuccess\Model\ResourceModel\Supplier\Product\Collection $supplierProductCollection */
-            $supplierProductCollection = $this->supplierProductService->getProductsBySupplierId($supplierId);
+            $supplierProductCollection = $this->supplierProductService->getAllSupplierProducts();
             if ($supplierProductCollection->getSize())
                 $supplierProductIds = $supplierProductCollection->getColumnValues('product_id');
         }

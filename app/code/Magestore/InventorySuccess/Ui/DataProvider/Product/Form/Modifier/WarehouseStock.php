@@ -130,6 +130,7 @@ class WarehouseStock extends AbstractModifier
                             . $data['warehouse_code'] . ') </a>';
         $data['total_qty'] = floatval($data[WarehouseProductInterface::TOTAL_QTY]);
         $data['available_qty'] = floatval($data[WarehouseProductInterface::AVAILABLE_QTY]);
+        $data['reserved_qty'] = floatval($data[WarehouseProductInterface::RESERVED_QTY]);
         $data['qty_to_ship'] = $data['total_qty'] - $data['available_qty'];
         return $data;
     }

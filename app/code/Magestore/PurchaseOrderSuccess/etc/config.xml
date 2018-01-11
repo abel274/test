@@ -16,6 +16,9 @@
             <email_template>
                 <email_to_supplier>purchase_order_success_supplier_email</email_to_supplier>
             </email_template>
+            <product_config>
+                <safety_quantity>10</safety_quantity>
+            </product_config>
         </purchaseordersuccess>
     </default>
 </config>

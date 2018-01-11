@@ -116,6 +116,84 @@ class TransferStockManagement extends ProductSelectionManagement implements
 
 
     /**
+     * update product stock in a warehouse by a transferStock
+     * @param TransferStockInterface $transferStock
+     */
+    public function updateStockForPo(TransferStockInterface $transferStock)
+    {
+        $products = $this->getProducts($transferStock);
+
+        $productData = [];
+        if ($products->getSize()) {
+
+            foreach ($products as $product) {
+                $productData[$product->getProductId()] = $product->getQty();
+            }
+
+            switch ($transferStock->getType()) {
+                case TransferStockInterface::TYPE_SEND:
+                    $warehouseId = $transferStock->getSourceWarehouseId();
+                    $this->_stockChange->issue($warehouseId, $productData, TransferStockMovementActivity::STOCK_MOVEMENT_ACTION_CODE, $transferStock->getTransferstockId());
+                    break;
+                case TransferStockInterface::TYPE_TO_EXTERNAL:
+                    $warehouseId = $transferStock->getSourceWarehouseId();
+                    $this->_stockChange->issue($warehouseId, $productData, TransferStockMovementActivity::STOCK_MOVEMENT_ACTION_CODE, $transferStock->getTransferstockId());
+                    break;
+                case TransferStockInterface::TYPE_FROM_EXTERNAL:
+                    $warehouseId = $transferStock->getDesWarehouseId();
+                    $this->_stockChange->receive($warehouseId, $productData, TransferStockMovementActivity::STOCK_MOVEMENT_ACTION_CODE, $transferStock->getTransferstockId());
+                    // check with reserved_qty for change stock product item
+                    $this->changeReservedQty($warehouseId, $productData);
+                    break;
+            }
+        }
+    }
+
+    // check qty transfer from PO with reserved_qty
+    // change reserved_qty and available_qty if need
+    public function changeReservedQty($warehouseId, $productData) {
+        $om = \Magento\Framework\App\ObjectManager::getInstance();
+        $helper = $om->get('Magestore\PurchaseOrderSuccess\Helper\Data');
+        foreach ($productData as $productId => $qty) {
+            $reservedQty = $helper->getReservedQty($productId, $warehouseId);
+            if($reservedQty) {
+                if($qty <= $reservedQty) {
+                    $changeReservedQty = $qty;
+                } else {
+                    $changeReservedQty = $reservedQty;
+                }
+                $this->changeStockReserved($warehouseId, $productId, $changeReservedQty);
+            }
+        }
+    }
+
+    // change reserved_qty and available_qty
+    public function changeStockReserved($warehouseId, $productId, $changeReservedQty) {
+        $om = \Magento\Framework\App\ObjectManager::getInstance();
+        $warehouseStockRegistry = $om->get('Magestore\InventorySuccess\Api\Warehouse\WarehouseStockRegistryInterface');
+        $queryProcess = $om->get('Magestore\InventorySuccess\Api\Db\QueryProcessorInterface');
+
+        // Decrease reserved_qty and available_qty (qty_to_ship up => available_qty down)
+        $qtyChanges = array(
+            WarehouseProductInterface::QTY_TO_SHIP => $changeReservedQty,
+            WarehouseProductInterface::RESERVED_QTY => -$changeReservedQty
+        );
+
+        $queryProcess->start();
+
+        // Update for current warehouse
+        $query = $warehouseStockRegistry->prepareChangeProductQty($warehouseId, $productId, $qtyChanges);
+        $queryProcess->addQuery($query);
+
+        // Update for global warehouse
+        $query = $warehouseStockRegistry->prepareChangeProductQty(WarehouseProductInterface::DEFAULT_SCOPE_ID, $productId, $qtyChanges);
+        $queryProcess->addQuery($query);
+
+        $queryProcess->process();
+    }
+
+
+    /**
      * decrease stock of source warehouse
      * increase stock of destination warehouse
      * @param TransferStockInterface $transferStock

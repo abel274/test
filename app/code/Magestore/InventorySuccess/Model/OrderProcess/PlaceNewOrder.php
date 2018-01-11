@@ -51,8 +51,15 @@ class PlaceNewOrder extends OrderProcess implements PlaceNewOrderInterface
     {
         $this->queryProcess->start();
         
-        $this->_addWarehouseOrderItem($item); 
-        $this->_increaseQtyToShipInOrderWarehouse($item);
+        $this->_addWarehouseOrderItem($item);
+        // get is_after_restock_date of item
+        $is_after_restock_date = $item->getData('is_after_restock_date');
+        if(!$is_after_restock_date) {
+            // if none is_after_restock_date, process normally
+            $this->_increaseQtyToShipInOrderWarehouse($item);
+        } else {
+            $this->_increaseReservedQtyInOrderWarehouse($item);
+        }
 
         $this->queryProcess->process();        
         
@@ -101,6 +108,44 @@ class PlaceNewOrder extends OrderProcess implements PlaceNewOrderInterface
         $qtyChanges = array(WarehouseProductInterface::QTY_TO_SHIP => $this->_getOrderedQty($item));
         $query = $this->warehouseStockRegistry->prepareChangeProductQty($updateWarehouseId, $item->getProductId(), $qtyChanges);
         $this->queryProcess->addQuery($query);           
+    }
+
+    /**
+     * increase reserved qty of item on warehouse
+     * @param \Magento\Sales\Model\Order\Item $item
+     */
+    protected function _increaseReservedQtyInOrderWarehouse($item)
+    {
+        $orderWarehouse = $this->getOrderWarehouse($item->getOrder());
+        if($this->catalogInventoryConfiguration->getDefaultScopeId() == WarehouseProductInterface::DEFAULT_SCOPE_ID) {
+            /* place order from global stock => decrease qty_to_ship and reserved_qty on global */
+            $updateWarehouseId = WarehouseProductInterface::DEFAULT_SCOPE_ID;
+
+            // neu warehouse hien tai la GLOBAL thi se tang available qty va reserved qty cua global
+            // dong thoi se tang reserved qty cua order warehouse (khong can tang available qty)
+            $updateReservedQtyForOtherWarehouseId = $orderWarehouse->getWarehouseId();
+        } else {
+            /* place order from warehouse stock => decrease qty_to_ship and reserved_qty on warehouse  */
+            $updateWarehouseId = $orderWarehouse->getWarehouseId();
+
+            $updateReservedQtyForOtherWarehouseId = WarehouseProductInterface::DEFAULT_SCOPE_ID;
+        }
+
+        $qtyChanges = array(
+            WarehouseProductInterface::QTY_TO_SHIP => -$this->_getOrderedQty($item),
+            WarehouseProductInterface::RESERVED_QTY => $this->_getOrderedQty($item)
+        );
+        $query = $this->warehouseStockRegistry->prepareChangeProductQty($updateWarehouseId, $item->getProductId(), $qtyChanges);
+        $this->queryProcess->addQuery($query);
+
+        // increase reserved qty for other warehouse
+        // for global if current warehouse != global
+        // for warehouse stock if current warehouse is global
+        $qtyChanges = array(
+            WarehouseProductInterface::RESERVED_QTY => $this->_getOrderedQty($item)
+        );
+        $query = $this->warehouseStockRegistry->prepareChangeProductQty($updateReservedQtyForOtherWarehouseId, $item->getProductId(), $qtyChanges);
+        $this->queryProcess->addQuery($query);
     }
     
     

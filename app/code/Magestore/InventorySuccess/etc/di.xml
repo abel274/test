@@ -180,5 +180,8 @@
     <preference for="Magento\CatalogInventory\Model\ResourceModel\Indexer\Stock\DefaultStock"
                 type="Magestore\InventorySuccess\Plugin\CatalogInventory\Model\ResourceModel\Indexer\Stock\DefaultStock" />     
     -->
-    
+
+    <!-- Plugin for change template product group view -->
+    <preference for="Magento\GroupedProduct\Block\Product\View\Type\Grouped"
+                type="Magestore\InventorySuccess\Plugin\Product\View\Type\Grouped" />
 </config>

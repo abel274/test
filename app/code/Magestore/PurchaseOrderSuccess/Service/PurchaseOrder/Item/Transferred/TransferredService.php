@@ -118,8 +118,9 @@ class TransferredService
         $data = $this->reformatPostData($transferStock, $transferredData, $params);
         $this->objectManager->create('Magestore\InventorySuccess\Model\TransferStock\TransferStockManagement')
             ->saveTransferStockProduct($transferStock->getId(), $data);
+        // Thay function de dung rieng cho luc tao transfer cho PO => thay doi reserved qty
         $this->objectManager->create('Magestore\InventorySuccess\Model\TransferStock\TransferStockManagement')
-            ->updateStock($transferStock, true);
+            ->updateStockForPo($transferStock, true);
         $transferStock->setData('status', 'completed');
         return $transferStock->save();
     }

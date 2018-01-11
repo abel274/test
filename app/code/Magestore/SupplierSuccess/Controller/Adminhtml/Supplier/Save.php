@@ -28,6 +28,16 @@ class Save extends \Magestore\SupplierSuccess\Controller\Adminhtml\AbstractSuppl
                 $data['supplier_id'] = null;
             }
 
+            // modifier startDate, set to current date if startDate>curDate
+            if($data['schedule'] == 5) {
+                $selectDate = strtotime($data['startDate']);
+                $curDate = new \DateTime('now', new \DateTimeZone('UTC'));
+                $curDate = $curDate->format('Y-m-d');
+                if($selectDate > strtotime($curDate)) {
+                    $data['startDate'] = $curDate;
+                }
+            }
+
             /** @var \Magestore\SupplierSuccess\Model\Supplier $model */
             $model = $this->_objectManager->create('Magestore\SupplierSuccess\Model\Supplier')->load($id);
             if (!$model->getId() && $id) {

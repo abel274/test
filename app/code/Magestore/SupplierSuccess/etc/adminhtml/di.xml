@@ -25,6 +25,10 @@
                     <item name="class" xsi:type="string">Magestore\SupplierSuccess\Ui\DataProvider\Supplier\DataForm\Modifier\ProductList</item>
                     <item name="sortOrder" xsi:type="number">10</item>
                 </item>
+                <item name="schedule_restock" xsi:type="array">
+                    <item name="class" xsi:type="string">Magestore\SupplierSuccess\Ui\DataProvider\Supplier\DataForm\Modifier\ScheduleRestock</item>
+                    <item name="sortOrder" xsi:type="number">50</item>
+                </item>
             </argument>
         </arguments>
     </virtualType>
